@@ -126,7 +126,90 @@ order by total_revenue desc
 <img width="290" height="180" alt="image" src="https://github.com/user-attachments/assets/b7266aa7-3194-47d2-a2ba-a3661a3b4bc0" />
 
 
+**7. How many products are currently out of stock (0 quantity) in each store?**
+
+**🚀 Queries**
+```sql
+select st.store_name,
+count(product_id) as out_of_stock
+from stocks s
+inner join stores st on st.store_id = s.store_id
+where quantity = 0
+group by st.store_name
+order by out_of_stock desc
+```
+**Result**
+
+<img width="238" height="125" alt="image" src="https://github.com/user-attachments/assets/06c4ab5c-5491-41a4-ba1e-dbb416602b41" />
+
+
+**8. How has revenue performed year-over-year (2016 vs 2017 vs 2018)?**
+
+**🚀 Queries**
+```sql
+select datepart(year, o.order_date) as Year, round(sum(oi.quantity * oi.list_price * (1-oi.discount)),2) as revenue_over_year
+from order_items oi
+inner join orders o on o.order_id = oi.order_id
+group by datepart(year, o.order_date)
+```
+**Result**
+<img width="205" height="103" alt="image" src="https://github.com/user-attachments/assets/49189586-68da-4ead-a20c-f72357659640" />
 
 
 
+**9. Is there a seasonal trend? Which month usually generates the highest sales?**
 
+**🚀 Queries**
+```sql
+select datepart(month, o.order_date) as Month, 
+	   round(sum(oi.quantity * oi.list_price * (1-oi.discount)),2) as revenue_over_month
+from order_items oi
+inner join orders o on o.order_id = oi.order_id
+group by datepart(month, o.order_date)
+order by Month asc
+```
+**Result**
+
+<img width="237" height="296" alt="image" src="https://github.com/user-attachments/assets/bb5634b7-64c2-4dc7-ae64-86c6b820a494" />
+
+
+**10. Who are our top VIP customers based on total spending?**
+**🚀 Queries**
+```sql
+select c.customer_id, 
+		concat(c.first_name, ' ', c.last_name) as Full_name,
+		round(sum(oi.quantity * oi.list_price * (1-oi.discount)),2) as total_spendings
+from customers c 
+inner join orders o 
+	on o.customer_id = c.customer_id
+inner join order_items oi
+	on oi.order_id = o.order_id
+group by c.customer_id, c.first_name, c.last_name
+order by total_spendings desc
+```
+**Result**
+
+<img width="342" height="462" alt="image" src="https://github.com/user-attachments/assets/398b54ee-454e-49b1-ac58-9e622a296114" />
+
+
+**11. What is the average order value (AOV) for each store?**
+
+AOV = (Total Number of Orders) / (Total Revenue)
+
+**🚀 Queries**
+```sql
+select s.store_name,
+	   round(sum(oi.quantity * oi.list_price * (1 - oi.discount)), 2) as total_revenue,
+	   round(
+		sum(oi.quantity * oi.list_price * (1 - oi.discount)) / count(distinct o.order_id),2) as Avg_order_value
+from stores s
+inner join orders o
+	on o.store_id = s.store_id
+inner join order_items oi
+	on oi.order_id = o.order_id
+group by s.store_name 
+order by Avg_order_value desc
+```
+**Result**
+
+<img width="359" height="119" alt="image" src="https://github.com/user-attachments/assets/725e6bf1-3f0a-49c5-8750-e07e1ce4d977" />
