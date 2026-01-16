@@ -12,6 +12,11 @@ This project involves analyzing a relational database for a bike store chain to 
 - SQL Server (T-SQL)
 - Key Concepts: JOINS, CTEs, Window Functions, Aggregate Functions.
 
+**Dataset:**
+
+"BikeStores" from https://www.sqlservertutorial.net
+
+
 **Database Diagram:**
 
 <img width="742" height="602" alt="image" src="https://github.com/user-attachments/assets/ff5cfe93-e231-4d8b-b490-4a833102632c" />
@@ -30,4 +35,9 @@ SELECT city, COUNT(customer_id) as number_of_customers
 FROM customers
 GROUP BY city
 ORDER BY number_of_customers DESC;
+```
+### Result
+<img width="296" height="382" alt="image" src="https://github.com/user-attachments/assets/b7b5893a-5038-425d-b244-baa8200bed38" />
+
+
 
