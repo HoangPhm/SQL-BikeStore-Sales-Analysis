@@ -40,6 +40,7 @@ ORDER BY number_of_customers DESC;
 <img width="296" height="382" alt="image" src="https://github.com/user-attachments/assets/b7b5893a-5038-425d-b244-baa8200bed38" />
 
 **2. Which product categories (e.g., Mountain Bikes, Road Bikes) drive the most revenue?**
+*   **Goal:** Understand product demand
 
 ### 🚀 Queries
 
@@ -55,3 +56,18 @@ order by c.category_name desc
 ### Result
 
 <img width="254" height="198" alt="image" src="https://github.com/user-attachments/assets/a729853d-4b5f-4fc9-a407-434a12897c41" />
+
+**3. Which specific products are our "Best Sellers" by quantity sold?**
+*	**Goal:** Identify popular items
+
+### 🚀 Queries
+```sql
+select p.product_name, sum(o.quantity) as total_sold_quantity
+from products p
+inner join order_items o on o.product_id = p.product_id
+group by p.product_name
+order by total_sold_quantity desc
+```
+### Result
+
+<img width="469" height="541" alt="image" src="https://github.com/user-attachments/assets/237ab263-87c0-48fc-bdcc-9332c384f435" />
