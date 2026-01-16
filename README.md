@@ -13,5 +13,6 @@ This project involves analyzing a relational database for a bike store chain to 
 - Key Concepts: JOINS, CTEs, Window Functions, Aggregate Functions.
 
 **Database Diagram:**
+
 <img width="742" height="602" alt="image" src="https://github.com/user-attachments/assets/ff5cfe93-e231-4d8b-b490-4a833102632c" />
 
