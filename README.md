@@ -1,23 +1,23 @@
 # SQL-BikeStore-Sales-Analysis
-**Overview**
+## Overview
 
 This project involves analyzing a relational database for a bike store chain to help the business owner make data-driven decisions.
 
-**Objectives:**
+## Objectives:
 - Sales Analysis: identifying top-selling products and seasonal trends.
 - Customer Insights: segmenting customers based on purchasing behavior (RFM).
 - Inventory Management: detecting low-stock items and dead stock.
 
-**Tools:**
+## Tools:
 - SQL Server (T-SQL)
 - Key Concepts: JOINS, CTEs, Window Functions, Aggregate Functions.
 
-**Dataset:**
+## Dataset:
 
 "BikeStores" from https://www.sqlservertutorial.net
 
 
-**Database Diagram:**
+## Database Diagram:
 
 <img width="742" height="602" alt="image" src="https://github.com/user-attachments/assets/ff5cfe93-e231-4d8b-b490-4a833102632c" />
 
@@ -28,8 +28,7 @@ ____________
 **1. Which cities have the highest customer concentration?**
 *   **Business Goal:** Identify location hotspots for potential marketing campaigns.
   
-### 🚀 Queries
-
+**🚀 Queries**
 ```sql
 SELECT city, COUNT(customer_id) as number_of_customers
 FROM customers
@@ -37,13 +36,14 @@ GROUP BY city
 ORDER BY number_of_customers DESC;
 ```
 ### Result
+
 <img width="296" height="382" alt="image" src="https://github.com/user-attachments/assets/b7b5893a-5038-425d-b244-baa8200bed38" />
 
 
 **2. Which product categories (e.g., Mountain Bikes, Road Bikes) drive the most revenue?**
 *   **Goal:** Understand product demand
 
-### 🚀 Queries
+**🚀 Queries**
 
 ```sql
 select c.category_name, 
@@ -54,7 +54,7 @@ inner join order_items o on o.product_id = p.product_id
 group by c.category_name
 order by c.category_name desc
 ```
-### Result
+**Result**
 
 <img width="254" height="198" alt="image" src="https://github.com/user-attachments/assets/a729853d-4b5f-4fc9-a407-434a12897c41" />
 
@@ -62,7 +62,7 @@ order by c.category_name desc
 **3. Which specific products are our "Best Sellers" by quantity sold?**
 *	**Goal:** Identify popular items
 
-### 🚀 Queries
+**🚀 Queries**
 ```sql
 select p.product_name, sum(o.quantity) as total_sold_quantity
 from products p
@@ -70,14 +70,14 @@ inner join order_items o on o.product_id = p.product_id
 group by p.product_name
 order by total_sold_quantity desc
 ```
-### Result
+**Result**
 
 <img width="469" height="541" alt="image" src="https://github.com/user-attachments/assets/237ab263-87c0-48fc-bdcc-9332c384f435" />
 
 
 **4. Which brands contribute the most to our total sales volume?**
 
-### 🚀 Queries
+**🚀 Queries**
 ```sql
 select b.brand_name, sum(o.quantity) total_sold
 from brands b
@@ -86,14 +86,14 @@ inner join order_items o on o.product_id = p.product_id
 group by b.brand_name
 order by total_sold desc
 ```
-### Result
+**Result**
 
 <img width="194" height="226" alt="image" src="https://github.com/user-attachments/assets/93f6654e-2f46-4fe8-ad8b-9e802b9f7aee" />
 
 
 **5. How do our three stores rank in terms of total revenue generated?**
 
-### 🚀 Queries
+**🚀 Queries**
 ```sql
 select s.store_name, 
 		round(sum(oi.quantity * oi.list_price * (1 - oi.discount)),2) as total_revenue
@@ -103,14 +103,14 @@ inner join order_items oi on oi.order_id = o.order_id
 group by s.store_name
 order by total_revenue desc
 ```
-### Result
+**Result**
 
 <img width="235" height="120" alt="image" src="https://github.com/user-attachments/assets/788bbbdf-0fd1-4b7c-900b-e755c685e2fa" />
 
 
 **6. Which staff members are the top performers in terms of revenue?**
 
-### 🚀 Queries
+**🚀 Queries**
 ```sql
 select st.staff_id,
 		concat(st.first_name, ' ', st.last_name) as Full_name, 
@@ -121,7 +121,7 @@ inner join order_items oi on oi.order_id = o.order_id
 group by st.staff_id, st.first_name, st.last_name
 order by total_revenue desc
 ```
-### Result
+**Result**
 
 <img width="290" height="180" alt="image" src="https://github.com/user-attachments/assets/b7266aa7-3194-47d2-a2ba-a3661a3b4bc0" />
 
