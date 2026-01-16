@@ -39,6 +39,7 @@ ORDER BY number_of_customers DESC;
 ### Result
 <img width="296" height="382" alt="image" src="https://github.com/user-attachments/assets/b7b5893a-5038-425d-b244-baa8200bed38" />
 
+
 **2. Which product categories (e.g., Mountain Bikes, Road Bikes) drive the most revenue?**
 *   **Goal:** Understand product demand
 
@@ -57,6 +58,7 @@ order by c.category_name desc
 
 <img width="254" height="198" alt="image" src="https://github.com/user-attachments/assets/a729853d-4b5f-4fc9-a407-434a12897c41" />
 
+
 **3. Which specific products are our "Best Sellers" by quantity sold?**
 *	**Goal:** Identify popular items
 
@@ -71,3 +73,60 @@ order by total_sold_quantity desc
 ### Result
 
 <img width="469" height="541" alt="image" src="https://github.com/user-attachments/assets/237ab263-87c0-48fc-bdcc-9332c384f435" />
+
+
+**4. Which brands contribute the most to our total sales volume?**
+
+### 🚀 Queries
+```sql
+select b.brand_name, sum(o.quantity) total_sold
+from brands b
+inner join products p on p.brand_id = b.brand_id
+inner join order_items o on o.product_id = p.product_id
+group by b.brand_name
+order by total_sold desc
+```
+### Result
+
+<img width="194" height="226" alt="image" src="https://github.com/user-attachments/assets/93f6654e-2f46-4fe8-ad8b-9e802b9f7aee" />
+
+
+**5. How do our three stores rank in terms of total revenue generated?**
+
+### 🚀 Queries
+```sql
+select s.store_name, 
+		round(sum(oi.quantity * oi.list_price * (1 - oi.discount)),2) as total_revenue
+from stores s
+inner join orders o on o.store_id = s.store_id
+inner join order_items oi on oi.order_id = o.order_id
+group by s.store_name
+order by total_revenue desc
+```
+### Result
+
+<img width="235" height="120" alt="image" src="https://github.com/user-attachments/assets/788bbbdf-0fd1-4b7c-900b-e755c685e2fa" />
+
+
+**6. Which staff members are the top performers in terms of revenue?**
+
+### 🚀 Queries
+```sql
+select st.staff_id,
+		concat(st.first_name, ' ', st.last_name) as Full_name, 
+		round(sum(oi.quantity * oi.list_price * (1 - oi.discount)),2) as total_revenue
+from staffs st
+inner join orders o on o.staff_id = st.staff_id
+inner join order_items oi on oi.order_id = o.order_id
+group by st.staff_id, st.first_name, st.last_name
+order by total_revenue desc
+```
+### Result
+
+<img width="290" height="180" alt="image" src="https://github.com/user-attachments/assets/b7266aa7-3194-47d2-a2ba-a3661a3b4bc0" />
+
+
+
+
+
+
