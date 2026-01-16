@@ -1,5 +1,6 @@
 # SQL-BikeStore-Sales-Analysis
 **Overview**
+
 This project involves analyzing a relational database for a bike store chain to help the business owner make data-driven decisions.
 
 **Objectives:**
