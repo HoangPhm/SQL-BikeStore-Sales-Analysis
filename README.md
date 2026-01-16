@@ -43,7 +43,7 @@ ORDER BY number_of_customers DESC;
 
 ### 🚀 Queries
 
-``sql
+```sql
 select c.category_name, 
 		round(sum(o.quantity * o.list_price * (1 - o.discount)),2) as total_revenue
 from categories c
@@ -51,7 +51,7 @@ inner join products p on c.category_id = p.category_id
 inner join order_items o on o.product_id = p.product_id
 group by c.category_name
 order by c.category_name desc
-``
+```
 ### Result
 
 <img width="254" height="198" alt="image" src="https://github.com/user-attachments/assets/a729853d-4b5f-4fc9-a407-434a12897c41" />
