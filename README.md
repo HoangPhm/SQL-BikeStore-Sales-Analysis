@@ -3,12 +3,12 @@
 
 This project involves analyzing a relational database for a bike store chain to help the business owner make data-driven decisions.
 
-## Objectives:
+## 🎯 Objectives:
 - Sales Analysis: identifying top-selling products and seasonal trends.
 - Customer Insights: segmenting customers based on purchasing behavior (RFM).
 - Inventory Management: detecting low-stock items and dead stock.
 
-## Tools:
+## 🛠️ Tools:
 - SQL Server (T-SQL)
 - Key Concepts: JOINS, CTEs, Window Functions, Aggregate Functions.
 
@@ -22,11 +22,10 @@ This project involves analyzing a relational database for a bike store chain to 
 <img width="742" height="602" alt="image" src="https://github.com/user-attachments/assets/ff5cfe93-e231-4d8b-b490-4a833102632c" />
 
 ____________
-## 📊 Business Problems & Solutions
+# 📊 Business Problems & Solutions
 
-**1. Which cities have the highest customer concentration?**
+##**❓ 1. Which cities have the highest customer concentration?**
 *   **Business Goal:** Identify location hotspots for potential marketing campaigns.
-  
 **🚀 Queries**
 ```sql
 SELECT city, COUNT(customer_id) as number_of_customers
@@ -34,14 +33,13 @@ FROM customers
 GROUP BY city
 ORDER BY number_of_customers DESC;
 ```
-### Result
+**Result**
 
 <img width="296" height="382" alt="image" src="https://github.com/user-attachments/assets/b7b5893a-5038-425d-b244-baa8200bed38" />
 
 
-**2. Which product categories (e.g., Mountain Bikes, Road Bikes) drive the most revenue?**
-*   **Goal:** Understand product demand
-
+##**❓ 2. Which product categories (e.g., Mountain Bikes, Road Bikes) drive the most revenue?**
+*   **Business Goal:** Identify and understand product demand
 **🚀 Queries**
 
 ```sql
@@ -58,9 +56,8 @@ order by c.category_name desc
 <img width="254" height="198" alt="image" src="https://github.com/user-attachments/assets/a729853d-4b5f-4fc9-a407-434a12897c41" />
 
 
-**3. Which specific products are our "Best Sellers" by quantity sold?**
+##**❓ 3. Which specific products are our "Best Sellers" by quantity sold?**
 *	**Goal:** Identify popular items
-
 **🚀 Queries**
 ```sql
 select p.product_name, sum(o.quantity) as total_sold_quantity
@@ -74,8 +71,7 @@ order by total_sold_quantity desc
 <img width="469" height="541" alt="image" src="https://github.com/user-attachments/assets/237ab263-87c0-48fc-bdcc-9332c384f435" />
 
 
-**4. Which brands contribute the most to our total sales volume?**
-
+##**❓ 4. Which brands contribute the most to our total sales volume?**
 **🚀 Queries**
 ```sql
 select b.brand_name, sum(o.quantity) total_sold
@@ -90,8 +86,7 @@ order by total_sold desc
 <img width="194" height="226" alt="image" src="https://github.com/user-attachments/assets/93f6654e-2f46-4fe8-ad8b-9e802b9f7aee" />
 
 
-**5. How do our three stores rank in terms of total revenue generated?**
-
+##**❓ 5. How do our three stores rank in terms of total revenue generated?**
 **🚀 Queries**
 ```sql
 select s.store_name, 
@@ -107,8 +102,7 @@ order by total_revenue desc
 <img width="235" height="120" alt="image" src="https://github.com/user-attachments/assets/788bbbdf-0fd1-4b7c-900b-e755c685e2fa" />
 
 
-**6. Which staff members are the top performers in terms of revenue?**
-
+##**❓ 6. Which staff members are the top performers in terms of revenue?**
 **🚀 Queries**
 ```sql
 select st.staff_id,
@@ -125,8 +119,7 @@ order by total_revenue desc
 <img width="290" height="180" alt="image" src="https://github.com/user-attachments/assets/b7266aa7-3194-47d2-a2ba-a3661a3b4bc0" />
 
 
-**7. How many products are currently out of stock (0 quantity) in each store?**
-
+##**❓ 7. How many products are currently out of stock (0 quantity) in each store?**
 **🚀 Queries**
 ```sql
 select st.store_name,
@@ -142,8 +135,7 @@ order by out_of_stock desc
 <img width="238" height="125" alt="image" src="https://github.com/user-attachments/assets/06c4ab5c-5491-41a4-ba1e-dbb416602b41" />
 
 
-**8. How has revenue performed year-over-year (2016 vs 2017 vs 2018)?**
-
+##**❓ 8. How has revenue performed year-over-year (2016 vs 2017 vs 2018)?**
 **🚀 Queries**
 ```sql
 select datepart(year, o.order_date) as Year, round(sum(oi.quantity * oi.list_price * (1-oi.discount)),2) as revenue_over_year
@@ -156,8 +148,7 @@ group by datepart(year, o.order_date)
 <img width="205" height="103" alt="image" src="https://github.com/user-attachments/assets/49189586-68da-4ead-a20c-f72357659640" />
 
 
-**9. Is there a seasonal trend? Which month usually generates the highest sales?**
-
+##**❓ 9. Is there a seasonal trend? Which month usually generates the highest sales?**
 **🚀 Queries**
 ```sql
 select datepart(month, o.order_date) as Month, 
@@ -172,7 +163,7 @@ order by Month asc
 <img width="237" height="296" alt="image" src="https://github.com/user-attachments/assets/bb5634b7-64c2-4dc7-ae64-86c6b820a494" />
 
 
-**10. Who are our top VIP customers based on total spending?**
+##**❓ 10. Who are our top VIP customers based on total spending?**
 **🚀 Queries**
 ```sql
 select c.customer_id, 
@@ -191,7 +182,7 @@ order by total_spendings desc
 <img width="342" height="462" alt="image" src="https://github.com/user-attachments/assets/398b54ee-454e-49b1-ac58-9e622a296114" />
 
 
-**11. What is the average order value (AOV) for each store?**
+##**❓ 11. What is the average order value (AOV) for each store?**
 
 AOV = (Total Number of Orders) / (Total Revenue)
 
