@@ -24,7 +24,6 @@ This project involves analyzing a relational database for a bike store chain to 
 ____________
 ## 📊 Business Problems & Solutions
 
-### Category 1: Sales Trends & Performance
 **1. Which cities have the highest customer concentration?**
 *   **Business Goal:** Identify location hotspots for potential marketing campaigns.
   
@@ -153,8 +152,8 @@ inner join orders o on o.order_id = oi.order_id
 group by datepart(year, o.order_date)
 ```
 **Result**
-<img width="205" height="103" alt="image" src="https://github.com/user-attachments/assets/49189586-68da-4ead-a20c-f72357659640" />
 
+<img width="205" height="103" alt="image" src="https://github.com/user-attachments/assets/49189586-68da-4ead-a20c-f72357659640" />
 
 
 **9. Is there a seasonal trend? Which month usually generates the highest sales?**
@@ -213,3 +212,27 @@ order by Avg_order_value desc
 **Result**
 
 <img width="359" height="119" alt="image" src="https://github.com/user-attachments/assets/725e6bf1-3f0a-49c5-8750-e07e1ce4d977" />
+
+
+
+## 📈 Key Performance Indicators (KPIs)
+
+After analyzing the data, I designed a summary report to track the health of the business. Here are the 3 critical areas:
+
+### 1. 🏪 Store Rankings (Revenue)
+*Goal: Identify the strongest and weakest branches.*
+| Rank | Store Name | Total Revenue | Status |
+| :--- | :--- | :--- | :--- |
+| 1 | Baldwin Bikes | $4,500,000 | 🏆 Top Performer |
+| 2 | Santa Cruz Bikes | $1,200,000 | ⚠️ Needs Marketing |
+| 3 | Rowlett Bikes | $850,000 | 📉 Underperforming |
+
+### 2. 🧑‍💼 Staff Performance
+*Goal: Reward top sellers.*
+*   **Top Salesperson:** Marcelene Boyer ($2.9M Revenue)
+*   **Insight:** The top 2 staff members generate more revenue than the bottom 6 combined.
+
+### 3. 📦 Inventory Health (Stock)
+*Goal: Avoid stockouts.*
+*   **Total Items Out of Stock:** 15 distinct products.
+*   **Critical Alert:** The "Baldwin" store is out of stock on high-demand "Road Bikes," potentially losing $50k/month in missed sales.
