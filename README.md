@@ -39,10 +39,11 @@ ORDER BY number_of_customers DESC;
 <img width="296" height="382" alt="image" src="https://github.com/user-attachments/assets/b7b5893a-5038-425d-b244-baa8200bed38" />
 
 **💡 Key Insight:**
+
 Customer density is highest in New York State, specifically in the NYC suburbs (Mount Vernon, Scarsdale, Floral Park).
 
 Strategic Recommendation: Since Mount Vernon and Scarsdale are wealthy areas, we should tailor marketing campaigns in these cities to feature higher-end "Premium" bikes rather than budget models.
-
+____________
 ## **❓ 2. Which product categories (e.g., Mountain Bikes, Road Bikes) drive the most revenue?**
 *   **Business Goal:** Identify and understand product demand
 
@@ -62,8 +63,9 @@ order by c.category_name desc
 <img width="254" height="198" alt="image" src="https://github.com/user-attachments/assets/a729853d-4b5f-4fc9-a407-434a12897c41" />
 
 **💡 Key Insight:**
-"Mountain Bikes" account for 35% of total revenue, making them our most important category. We should prioritize keeping these in stock over "Children Bicycles," which have high volume but low profit margins.
 
+"Mountain Bikes" account for 35% of total revenue, making them our most important category. We should prioritize keeping these in stock over "Children Bicycles," which have high volume but low profit margins.
+____________
 ## **❓ 3. Which specific products are our "Best Sellers" by quantity sold?**
 *	**Business Goal:** Identify popular items
   
@@ -80,10 +82,12 @@ order by total_sold_quantity desc
 <img width="469" height="541" alt="image" src="https://github.com/user-attachments/assets/237ab263-87c0-48fc-bdcc-9332c384f435" />
 
 **💡 Key Insight:**
+
 While **Electra** dominates the top 4 spots, the product types reveal that our best-sellers are exclusively "Cruiser" and "Comfort" bikes aimed at casual riders
 
 Strategic Recommendation: Since distinct "Girl's" and "Women's" models appear frequently in the top 20, we should target marketing campaigns toward families and female demographics, rather than just male-dominated competitive cycling.
 
+____________
 ## **❓ 4. Which brands contribute the most to our total sales volume?**
 *	**Business Goal:** identify brands that sold the most 
 
@@ -100,7 +104,7 @@ order by total_sold desc
 
 <img width="194" height="226" alt="image" src="https://github.com/user-attachments/assets/93f6654e-2f46-4fe8-ad8b-9e802b9f7aee" />
 
-
+____________
 ## **❓ 5. How do our three stores rank in terms of total revenue generated?**
 **🚀 Queries**
 ```sql
@@ -117,10 +121,12 @@ order by total_revenue desc
 <img width="235" height="120" alt="image" src="https://github.com/user-attachments/assets/788bbbdf-0fd1-4b7c-900b-e755c685e2fa" />
 
 **💡 Key Insight:**
+
 Baldwin Bikes drives ~68% of the company's total revenue. It generates more sales than the other two locations combined.
 
 The company is over-reliant on the NY market (Baldwin). The Rowlett store (Texas) is significantly underperforming, generating only 16% of what Baldwin generates. We need to investigate if this is a location issue, a staffing issue, or a lack of local marketing in Texas.
 
+____________
 ## **❓ 6. Which staff members are the top performers in terms of revenue?**
 
 **🚀 Queries**
@@ -138,7 +144,7 @@ order by total_revenue desc
 
 <img width="290" height="180" alt="image" src="https://github.com/user-attachments/assets/b7266aa7-3194-47d2-a2ba-a3661a3b4bc0" />
 
-
+____________
 ## **❓ 7. How many products are currently out of stock (0 quantity) in each store?**
 
 **🚀 Queries**
@@ -156,10 +162,12 @@ order by out_of_stock desc
 <img width="238" height="125" alt="image" src="https://github.com/user-attachments/assets/06c4ab5c-5491-41a4-ba1e-dbb416602b41" />
 
 **💡 Key Insight:**
+
 we can see the correlation here: high sales = high stockouts
 
 we are likely holding too much Safety sock in low-selling store. We should reallocate that inventory to Baldwin to prevent losing sales in high-traffic location
 
+____________
 ## **❓ 8. How has revenue performed year-over-year (2016 vs 2017 vs 2018)?**
 
 **🚀 Queries**
@@ -173,7 +181,15 @@ group by datepart(year, o.order_date)
 
 <img width="205" height="103" alt="image" src="https://github.com/user-attachments/assets/49189586-68da-4ead-a20c-f72357659640" />
 
+**💡 Key Insight:**
 
+1, Strong growth phase (2016 - 2017): the business experienced a massive 58.5% invrease in revenue. 
+
+2, While 2018 shows the lowest annual toal, a deep dive reveals that revenue velocity actually peaked in Q1 2018, with April recording the highest monthly sales in company history.
+
+<img width="314" height="283" alt="image" src="https://github.com/user-attachments/assets/d4174a36-0df2-4139-8eaa-2e8bbadf516e" />
+
+____________
 ## **❓ 9. Is there a seasonal trend? Which month usually generates the highest sales?**
 
 **🚀 Queries**
@@ -189,7 +205,11 @@ order by Month asc
 
 <img width="237" height="296" alt="image" src="https://github.com/user-attachments/assets/bb5634b7-64c2-4dc7-ae64-86c6b820a494" />
 
+**💡 Key Insight:**
 
+Analysis identifies April as the "Golden Month" for the business across all years. This is likely driven by the onset of Spring riding season and the arrival of tax refunds in the US, providing a clear window for high-impact marketing campaigns and new model launches.
+
+____________
 ## **❓ 10. Who are our top VIP customers based on total spending?**
 
 **🚀 Queries**
@@ -209,10 +229,13 @@ order by total_spendings desc
 
 <img width="342" height="462" alt="image" src="https://github.com/user-attachments/assets/398b54ee-454e-49b1-ac58-9e622a296114" />
 
-
+____________
 ## **❓ 11. What is the average order value (AOV) for each store?**
+**Average Order Value (AOV)** measures the average dollar amount spent each time a customer places an order.
 
-AOV = (Total Number of Orders) / (Total Revenue)
+**AOV = (Total Revenue) / (Number of Orders)**
+
+By comparing AOV across stores, we can distinguish between locations that drive volume (many small sales) versus those that drive value (selling high-end premium bikes). This metric is essential for tailoring local marketing—deciding whether to push budget accessories or luxury mountain bikes.
 
 **🚀 Queries**
 ```sql
@@ -232,6 +255,10 @@ order by Avg_order_value desc
 
 <img width="359" height="119" alt="image" src="https://github.com/user-attachments/assets/725e6bf1-3f0a-49c5-8750-e07e1ce4d977" />
 
+**💡 Key Insight:**
+AOV analysis reveals that **Rowlett Bikes** attracts the highest-spending clients, despite having the lowest total sales volume
+
+There is a significant opportunity to grow revenue in Rowlett through traffic-driving marketing, as the store already excels at high-value conversions. Meanwhile, Baldwin remains the volume leader but could benefit from upselling strategies to increase its per-order value.
 
 
 ## 📈 Key Performance Indicators (KPIs)
@@ -253,5 +280,5 @@ After analyzing the data, I designed a summary report to track the health of the
 
 ### 3. 📦 Inventory Health (Stock)
 *Goal: Avoid stockouts.*
-*   **Total Items Out of Stock:** 15 distinct products.
+*   **Total Items Out of Stock:** 25 distinct products.
 *   **Critical Alert:** The "Baldwin" store is out of stock on high-demand "Road Bikes," potentially losing $50k/month in missed sales.
