@@ -25,7 +25,7 @@ ____________
 # 📊 Business Problems & Solutions
 # Section 1: Sales & Product Performance
 _understanding what sells, what drives revenue, and when_
-
+___________
 ## **1. Which product categories (e.g., Mountain Bikes, Road Bikes) drive the most revenue?**
 *   **Business Goal:** Identify and understand product demand across categories
 
@@ -38,11 +38,11 @@ from categories c
 inner join products p on c.category_id = p.category_id
 inner join order_items o on o.product_id = p.product_id
 group by c.category_name
-order by c.category_name desc
+order by total_revenue desc
 ```
 **Result**
 
-<img width="254" height="198" alt="image" src="https://github.com/user-attachments/assets/a729853d-4b5f-4fc9-a407-434a12897c41" />
+<img width="251" height="178" alt="image" src="https://github.com/user-attachments/assets/eff1c53f-128f-44f0-9433-3872178f7afb" />
 
 **Key Insight:**
 
@@ -244,8 +244,77 @@ AOV analysis reveals that **Rowlett Bikes** attracts the highest-spending client
 There is a significant opportunity to grow revenue in Rowlett through traffic-driving marketing, as the store already excels at high-value conversions. Meanwhile, Baldwin remains the volume leader but could benefit from upselling strategies to increase its per-order value.
 
 # Section 3: Customer & Inventory Insights
+___________
+## **10. Which cities have the highest customer concentration, and where should we focus local marketing?**
 
+**Queries**
+```sql
+select city, count(customer_id) as number_of_customers
+from customers
+group by city
+order by number_of_customers desc
+```
 
+**Result**
+
+<img width="283" height="363" alt="image" src="https://github.com/user-attachments/assets/57f78f32-2b47-4bc7-a52e-a1bc1383840d" />
+
+___________
+## **11.Beyond simple top spenders, which customers are our most valuable and loyal — and which ones are at risk of churning?**
+*	**Business Goal:** Knowing who spent the most historically doesn't tell us who to retain. We need to separate loyal repeat buyers from one-time high spenders who may never return
+
+**Queries**
+```sql
+with rfm_base as (
+	--CTE 1: calculate raw Recency, Frequency, Monetary
+	select c.customer_id, 
+			datediff(day, max(o.order_date), (select max(order_date) from orders)) as recency,
+			count(distinct o.order_id) as frequency,
+			round(sum(oi.quantity * oi.list_price * (1-oi.discount)),2) as monetary
+	from customers c 
+	join orders o on o.customer_id = c.customer_id
+	join order_items oi	on oi.order_id = o.order_id
+	group by c.customer_id
+),
+rfm_scored as (
+	-- CTE 2: use result from CTE 1 to compute quartiles
+	select customer_id, recency, frequency, monetary,
+		   ntile(4) over(order by recency desc) r_score,
+		   ntile(4) over(order by frequency asc) f_score,
+		   ntile(4) over(order by monetary asc) m_score
+	from rfm_base
+)
+
+select customer_id, r_score + f_score + m_score as rfm_total,
+	   case when r_score + f_score + m_score >= 10 then 'Champion'
+			when r_score + f_score + m_score >= 7 then 'Loyal'
+			else 'At risk' end as segment
+from rfm_scored
+order by rfm_total desc
+```
+
+**Result**
+
+<img width="265" height="244" alt="image" src="https://github.com/user-attachments/assets/303d30b7-3668-4fcc-9b18-cf1eea547465" />
+
+____________
+## **12. Given where our customers are concentrated, do we have enough stock in the right stores?**
+
+**Queries**
+```sql
+select st.store_name,
+count(product_id) as out_of_stock
+from stocks s
+inner join stores st on st.store_id = s.store_id
+where quantity = 0
+group by st.store_name
+order by out_of_stock desc
+```
+**Result**
+
+<img width="243" height="95" alt="image" src="https://github.com/user-attachments/assets/cae54f1c-b844-47c5-9b7e-45920fae9f0e" />
+
+____________
 ## 📈 Key Performance Indicators (KPIs)
 
 After analyzing the data, I designed a summary report to track the health of the business. Here are the 3 critical areas:
