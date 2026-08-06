@@ -415,13 +415,8 @@ After analyzing the data, I designed a summary report to track the health of the
 * 	**At Risk:** Customers scoring ≤6 — have a purchase history but have gone quiet or infrequent recently. Priority targets for win-back campaigns before they're lost entirely.
 * 	**Insight:** A simple "top spenders" list would have missed the At Risk group entirely — RFM is what makes this distinction visible.
 
-## 3. Staff Performance
-**Goal:** Reward top sellers.*
 
-*   **Top Salesperson:** Marcelene Boyer ($2.6M Revenue)
-*   **Insight:** The top 2 staff members generate more revenue than the bottom 6 combined.
-
-## 4. Inventory Management
+## 3. Inventory Management
 
 **Goal:** Avoid stockouts on high-demand items and prevent capital from being tied up in dead stock.
 
