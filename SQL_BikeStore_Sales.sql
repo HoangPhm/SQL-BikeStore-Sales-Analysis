@@ -1,10 +1,4 @@
 --Query 1
-SELECT city, COUNT(customer_id) as number_of_customers
-FROM customers
-GROUP BY city
-ORDER BY number_of_customers DESC;
-
---Q2
 select c.category_name, 
 		round(sum(o.quantity * o.list_price * (1 - o.discount)),2) as total_revenue
 from categories c
@@ -13,22 +7,29 @@ inner join order_items o on o.product_id = p.product_id
 group by c.category_name
 order by c.category_name desc
 
---Q3
-select p.product_name, sum(o.quantity) as total_sold_quantity
-from products p
-inner join order_items o on o.product_id = p.product_id
-group by p.product_name
-order by total_sold_quantity desc
+--Query 2
+with ranked_products as (
+	select c.category_name, p.product_name,
+		   sum(oi.quantity) as total_count,
+		   rank() over(partition by c.category_name order by sum(oi.quantity) desc) as rnk
+	from products p
+	join categories c on c.category_id = p.category_id
+	join order_items oi on oi.product_id = p.product_id
+	group by c.category_name, p.product_name
+)
 
---Q4
-select b.brand_name, sum(o.quantity) total_sold
+select * from ranked_products
+
+--Query 3
+select b.brand_name, sum(oi.quantity) total_sold,
+	   round(100.0 * sum(oi.quantity) / sum(sum(oi.quantity)) over(),2) pct_of_total
 from brands b
-inner join products p on p.brand_id = b.brand_id
-inner join order_items o on o.product_id = p.product_id
+join products p on p.brand_id = b.brand_id
+join order_items oi on oi.product_id = p.product_id
 group by b.brand_name
 order by total_sold desc
 
---Q5
+--Query 5
 select s.store_name, 
 		round(sum(oi.quantity * oi.list_price * (1 - oi.discount)),2) as total_revenue
 from stores s
@@ -37,7 +38,7 @@ inner join order_items oi on oi.order_id = o.order_id
 group by s.store_name
 order by total_revenue desc
 
---Q6
+--Query 6
 select st.staff_id,
 		concat(st.first_name, ' ', st.last_name) as Full_name, 
 		round(sum(oi.quantity * oi.list_price * (1 - oi.discount)),2) as total_revenue
@@ -47,7 +48,7 @@ inner join order_items oi on oi.order_id = o.order_id
 group by st.staff_id, st.first_name, st.last_name
 order by total_revenue desc
 
---Q7
+--Query 7
 select st.store_name,
 count(product_id) as out_of_stock
 from stocks s
@@ -56,13 +57,21 @@ where quantity = 0
 group by st.store_name
 order by out_of_stock desc
 
---Q8
-select datepart(year, o.order_date) as Year, round(sum(oi.quantity * oi.list_price * (1-oi.discount)),2) as revenue_over_year
-from order_items oi
-inner join orders o on o.order_id = oi.order_id
-group by datepart(year, o.order_date)
+--Query 8
+with yearly as (
+	select datepart(year, o.order_date) as yr, 
+		   sum(oi.quantity * oi.list_price * (1-oi.discount)) as revenue
+	from order_items oi
+	join orders o on o.order_id = oi.order_id
+	group by datepart(year, o.order_date)
+)
 
---Q9
+select yr, revenue,
+	   lag(revenue) over(order by yr) as prev_year_revenue,
+	   round(100.0 * (revenue - lag(revenue) over(order by yr)) / lag(revenue) over(order by yr),2) as yoy_growth_pct
+from yearly
+
+--Query 9
 select datepart(month, o.order_date) as Month, 
 	   round(sum(oi.quantity * oi.list_price * (1-oi.discount)),2) as revenue_over_month
 from order_items oi
@@ -70,7 +79,7 @@ inner join orders o on o.order_id = oi.order_id
 group by datepart(month, o.order_date)
 order by Month asc
 
---Q10
+--Query 10
 select c.customer_id, 
 		concat(c.first_name, ' ', c.last_name) as Full_name,
 		round(sum(oi.quantity * oi.list_price * (1-oi.discount)),2) as total_spendings
@@ -82,7 +91,7 @@ inner join order_items oi
 group by c.customer_id, c.first_name, c.last_name
 order by total_spendings desc
 
---Q11
+--Query 11
 select s.store_name,
 	   round(sum(oi.quantity * oi.list_price * (1 - oi.discount)), 2) as total_revenue,
 	   round(
