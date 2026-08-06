@@ -23,29 +23,11 @@ This project involves analyzing a relational database for a bike store chain to 
 
 ____________
 # 📊 Business Problems & Solutions
+# Section 1: Sales & Product Performance
+_understanding what sells, what drives revenue, and when_
 
-## **1. Which cities have the highest customer concentration?**
-*   **Business Goal:** Identify location hotspots for potential marketing campaigns. The result is cities ranked from highest to lowest based on the number of customers
-  
-**Queries**
-```sql
-SELECT city, COUNT(customer_id) as number_of_customers
-FROM customers
-GROUP BY city
-ORDER BY number_of_customers DESC;
-```
-**Result**
-
-<img width="296" height="382" alt="image" src="https://github.com/user-attachments/assets/b7b5893a-5038-425d-b244-baa8200bed38" />
-
-**Key Insight:**
-
-Customer density is highest in New York State, specifically in the NYC suburbs (Mount Vernon, Scarsdale, Floral Park).
-
-Strategic Recommendation: Since Mount Vernon and Scarsdale are wealthy areas, we should tailor marketing campaigns in these cities to feature higher-end "Premium" bikes rather than budget models.
-____________
-## **2. Which product categories (e.g., Mountain Bikes, Road Bikes) drive the most revenue?**
-*   **Business Goal:** Identify and understand product demand
+## **1. Which product categories (e.g., Mountain Bikes, Road Bikes) drive the most revenue?**
+*   **Business Goal:** Identify and understand product demand across categories
 
 **Queries**
 
@@ -66,46 +48,108 @@ order by c.category_name desc
 
 "Mountain Bikes" account for 35% of total revenue, making them our most important category. We should prioritize keeping these in stock over "Children Bicycles," which have high volume but low profit margins.
 ____________
-## **3. Which specific products are our "Best Sellers" by quantity sold?**
-*	**Business Goal:** Identify popular items
+## **2. Within each category which products are the best sellers?**
+*	**Business Goal:** Knowing that "Mountain Bikes" sell well overall isn't enough, we need to know which specific models within each category to keep in stock
   
 **Queries**
 ```sql
-select p.product_name, sum(o.quantity) as total_sold_quantity
-from products p
-inner join order_items o on o.product_id = p.product_id
-group by p.product_name
-order by total_sold_quantity desc
+with ranked_products as (
+	select c.category_name, p.product_name,
+		   sum(oi.quantity) as total_count,
+		   rank() over(partition by c.category_name order by sum(oi.quantity) desc) as rnk
+	from products p
+	join categories c on c.category_id = p.category_id
+	join order_items oi on oi.product_id = p.product_id
+	group by c.category_name, p.product_name
+)
+
+select * from ranked_products
 ```
 **Result**
 
-<img width="469" height="541" alt="image" src="https://github.com/user-attachments/assets/237ab263-87c0-48fc-bdcc-9332c384f435" />
+<img width="517" height="357" alt="image" src="https://github.com/user-attachments/assets/ece6ae67-feaf-417f-97af-93aaa04ffda7" />
 
 **Key Insight:**
 
-While **Electra** dominates the top 4 spots, the product types reveal that our best-sellers are exclusively "Cruiser" and "Comfort" bikes aimed at casual riders
-
-Strategic Recommendation: Since distinct "Girl's" and "Women's" models appear frequently in the top 20, we should target marketing campaigns toward families and female demographics, rather than just male-dominated competitive cycling.
 
 ____________
-## **4. Which brands contribute the most to our total sales volume?**
-*	**Business Goal:** identify brands that sold the most 
+## **3. Which brands contribute the most to our sales, and how concentrated is that contribute?**
+*	**Business Goal:** a brand leading in volume doesn't tell us if we're dangerously dependent on one supplier
 
 **Queries**
 ```sql
-select b.brand_name, sum(o.quantity) total_sold
+select b.brand_name, sum(oi.quantity) total_sold,
+	   round(100.0 * sum(oi.quantity) / sum(sum(oi.quantity)) over(),2) pct_of_total
 from brands b
-inner join products p on p.brand_id = b.brand_id
-inner join order_items o on o.product_id = p.product_id
+join products p on p.brand_id = b.brand_id
+join order_items oi on oi.product_id = p.product_id
 group by b.brand_name
 order by total_sold desc
 ```
 **Result**
 
-<img width="194" height="226" alt="image" src="https://github.com/user-attachments/assets/93f6654e-2f46-4fe8-ad8b-9e802b9f7aee" />
+<img width="317" height="209" alt="image" src="https://github.com/user-attachments/assets/cf047214-a732-408b-87fd-93c27ec62f44" />
 
 ____________
-## **5. How do our three stores rank in terms of total revenue generated?**
+## **4. What is our year-over-year revenue growth rate, and is the business accelerating or slowing down?**
+*	**Business Goal:** raw yearly totals hide the real story, we need to know the rate of change, not just the number
+
+**Queries**
+```sql
+with yearly as (
+	select datepart(year, o.order_date) as yr, 
+		   sum(oi.quantity * oi.list_price * (1-oi.discount)) as revenue
+	from order_items oi
+	join orders o on o.order_id = oi.order_id
+	group by datepart(year, o.order_date)
+)
+
+select yr, revenue,
+	   lag(revenue) over(order by yr) as prev_year_revenue,
+	   round(100.0 * (revenue - lag(revenue) over(order by yr)) / lag(revenue) over(order by yr),2) as yoy_growth_pct
+from yearly
+```
+**Result**
+
+<img width="424" height="86" alt="image" src="https://github.com/user-attachments/assets/59d2982f-e948-4e24-8f16-e6482a2e73b6" />
+
+____________
+## **5. How has monthly revenue trended over time, and were there any months of unusually strong growth or sharp decline?**
+*	**Business Goal:** track the business's growth trajectory month by month, and flag any specific month where revenue spiked or dropped sharply, so we can investigate the cause (promotion, stockout, seasonal event, etc.) rather than only seeing it in a yearly rollup
+
+**Queries**
+```sql
+with monthly as (
+    select datepart(year, o.order_date) as yr,
+           datepart(month, o.order_date) as mo,
+           round(sum(oi.quantity * oi.list_price * (1-oi.discount)),2) as revenue
+    from order_items oi
+    join orders o on o.order_id = oi.order_id
+    group by datepart(year, o.order_date), datepart(month, o.order_date)
+),
+with_lag as (
+    select yr, mo, revenue,
+           lag(revenue) over (order by yr, mo) as prev_month_revenue
+    from monthly
+)
+select yr, mo, revenue, prev_month_revenue,
+       sum(revenue) over (order by yr, mo) as cumulative_revenue,
+       round(100.0 * (revenue - prev_month_revenue) / prev_month_revenue, 2) as mom_growth_pct
+from with_lag
+order by yr, mo;
+```
+**Result**
+
+<img width="554" height="724" alt="image" src="https://github.com/user-attachments/assets/f8da123f-2881-4fb7-a5bd-daff407eb0dd" />
+
+
+**Key Insight:**
+
+# Section 2: Store & Staff Performance
+_We see that Baldwin dominates total revenue, but does that mean it's actually the best-run store?_
+____________
+## **6. How do our three stores rank in terms of total revenue?**
+
 **Queries**
 ```sql
 select s.store_name, 
@@ -118,16 +162,11 @@ order by total_revenue desc
 ```
 **Result**
 
-<img width="235" height="120" alt="image" src="https://github.com/user-attachments/assets/788bbbdf-0fd1-4b7c-900b-e755c685e2fa" />
+<img width="239" height="92" alt="image" src="https://github.com/user-attachments/assets/20c24ee3-539d-47ae-9dd0-4580076dc8b2" />
 
-**Key Insight:**
-
-Baldwin Bikes drives ~68% of the company's total revenue. It generates more sales than the other two locations combined.
-
-The company is over-reliant on the NY market (Baldwin). The Rowlett store (Texas) is significantly underperforming, generating only 16% of what Baldwin generates. We need to investigate if this is a location issue, a staffing issue, or a lack of local marketing in Texas.
 
 ____________
-## **6. Which staff members are the top performers in terms of revenue?**
+## **7. Given Baldwin's dominance, who are the staff members actually driving that revenue?**
 
 **Queries**
 ```sql
@@ -142,95 +181,39 @@ order by total_revenue desc
 ```
 **Result**
 
-<img width="290" height="180" alt="image" src="https://github.com/user-attachments/assets/b7266aa7-3194-47d2-a2ba-a3661a3b4bc0" />
+<img width="289" height="151" alt="image" src="https://github.com/user-attachments/assets/a35269d5-2b17-4d87-b595-2d718191fe82" />
 
-____________
-## **7. How many products are currently out of stock (0 quantity) in each store?**
-
-**Queries**
-```sql
-select st.store_name,
-count(product_id) as out_of_stock
-from stocks s
-inner join stores st on st.store_id = s.store_id
-where quantity = 0
-group by st.store_name
-order by out_of_stock desc
-```
-**Result**
-
-<img width="238" height="125" alt="image" src="https://github.com/user-attachments/assets/06c4ab5c-5491-41a4-ba1e-dbb416602b41" />
 
 **Key Insight:**
 
-we can see the correlation here: high sales = high stockouts
-
-we are likely holding too much Safety sock in low-selling store. We should reallocate that inventory to Baldwin to prevent losing sales in high-traffic location
-
 ____________
-## **8. How has revenue performed year-over-year (2016 vs 2017 vs 2018)?**
-
+## **8. Which staff member is the top performer within their own store — not just company-wide?**
+*	**Business Goal:** A company-wide ranking always favors staff at the biggest store. We need to know who's excelling relative to their own store's scale.
 **Queries**
 ```sql
-select datepart(year, o.order_date) as Year, round(sum(oi.quantity * oi.list_price * (1-oi.discount)),2) as revenue_over_year
-from order_items oi
-inner join orders o on o.order_id = oi.order_id
-group by datepart(year, o.order_date)
+--Which staff member is the top performer within their own store — not just company-wide?
+with ranked_staff as (
+	select st.staff_id, st.store_id, s.store_name,
+			concat(st.first_name, ' ', st.last_name) as Full_name, 
+			round(sum(oi.quantity * oi.list_price * (1 - oi.discount)),2) as total_revenue
+	from staffs st
+	join orders o on o.staff_id = st.staff_id
+	join order_items oi on oi.order_id = o.order_id
+	join stores s on s.store_id = st.store_id
+	group by st.staff_id, st.store_id, s.store_name, st.first_name, st.last_name
+	)
+
+select staff_id, full_name, store_name, total_revenue, 
+	   rank() over(partition by store_id order by total_revenue desc) as staff_rank
+from ranked_staff
+order by store_name, staff_rank 
 ```
 **Result**
 
-<img width="205" height="103" alt="image" src="https://github.com/user-attachments/assets/49189586-68da-4ead-a20c-f72357659640" />
-
-**Key Insight:**
-
-1, Strong growth phase (2016 - 2017): the business experienced a massive 58.5% invrease in revenue. 
-
-2, While 2018 shows the lowest annual toal, a deep dive reveals that revenue velocity actually peaked in Q1 2018, with April recording the highest monthly sales in company history.
-
-<img width="314" height="283" alt="image" src="https://github.com/user-attachments/assets/d4174a36-0df2-4139-8eaa-2e8bbadf516e" />
+<img width="466" height="155" alt="image" src="https://github.com/user-attachments/assets/6c481bcc-6051-4ce6-a074-8e2d5bfb7c7d" />
 
 ____________
-## **9. Is there a seasonal trend? Which month usually generates the highest sales?**
-
-**Queries**
-```sql
-select datepart(month, o.order_date) as Month, 
-	   round(sum(oi.quantity * oi.list_price * (1-oi.discount)),2) as revenue_over_month
-from order_items oi
-inner join orders o on o.order_id = oi.order_id
-group by datepart(month, o.order_date)
-order by Month asc
-```
-**Result**
-
-<img width="237" height="296" alt="image" src="https://github.com/user-attachments/assets/bb5634b7-64c2-4dc7-ae64-86c6b820a494" />
-
-**Key Insight:**
-
-Analysis identifies April as the "Golden Month" for the business across all years. This is likely driven by the onset of Spring riding season and the arrival of tax refunds in the US, providing a clear window for high-impact marketing campaigns and new model launches.
-
-____________
-## **10. Who are our top VIP customers based on total spending?**
-
-**Queries**
-```sql
-select c.customer_id, 
-		concat(c.first_name, ' ', c.last_name) as Full_name,
-		round(sum(oi.quantity * oi.list_price * (1-oi.discount)),2) as total_spendings
-from customers c 
-inner join orders o 
-	on o.customer_id = c.customer_id
-inner join order_items oi
-	on oi.order_id = o.order_id
-group by c.customer_id, c.first_name, c.last_name
-order by total_spendings desc
-```
-**Result**
-
-<img width="342" height="462" alt="image" src="https://github.com/user-attachments/assets/398b54ee-454e-49b1-ac58-9e622a296114" />
-
-____________
-## **11. What is the average order value (AOV) for each store?**
+## **9. Revenue aside, which store actually converts the highest-value orders — and what does that mean for how we grow the smaller stores?**
 **Average Order Value (AOV)** measures the average dollar amount spent each time a customer places an order.
 
 **AOV = (Total Revenue) / (Number of Orders)**
@@ -259,6 +242,8 @@ order by Avg_order_value desc
 AOV analysis reveals that **Rowlett Bikes** attracts the highest-spending clients, despite having the lowest total sales volume
 
 There is a significant opportunity to grow revenue in Rowlett through traffic-driving marketing, as the store already excels at high-value conversions. Meanwhile, Baldwin remains the volume leader but could benefit from upselling strategies to increase its per-order value.
+
+# Section 3: Customer & Inventory Insights
 
 
 ## 📈 Key Performance Indicators (KPIs)
